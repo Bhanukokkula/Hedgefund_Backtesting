@@ -45,24 +45,6 @@ later delisted, and a survivors-only universe shows **+72 bps** of
 annualized return inflation versus the full universe — confirmed, real
 survivorship bias, not a theoretical concern.
 
-> **Honest caveats:**
-> - **Sample size.** 117 cached tickers (~95 passing filters), not the
->   500-name target in `config.yaml`. Bounded by Tiingo's free-tier hourly
->   request allocation (~50 req/hour), not by design. The qualitative
->   findings — survivorship inflates results, costs erode the weaker
->   factors, low-vol doesn't survive deflation — would plausibly hold at
->   full scale, but magnitudes should be read as directional.
-> - **No margin/leverage model, by choice, not by accident.** An earlier
->   dollar-neutral long-short construction (100% long / 100% short, 200%
->   gross) was tried first and is mathematically able to lever past its
->   own capital with no risk constraint — on this noisy small-cap sample
->   it pushed NAV negative. Rather than bolt on an ad hoc margin model,
->   the headline results use long-only top-decile, which is structurally
->   incapable of that failure mode (fully invested, no shorting, no
->   leverage) and is one of the two constructions M4 was built to support.
-> - **Single-split walk-forward.** See the momentum note above — one
->   chronological split can flag overfitting but can't rule out regime
->   luck in either direction.
 
 ## How GLASSBOX resists each way backtests lie
 
