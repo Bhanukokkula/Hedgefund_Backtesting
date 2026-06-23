@@ -1,0 +1,189 @@
+{
+  "metrics": {
+    "m0.config_loads": {
+      "target": true,
+      "result": true,
+      "note": "config.yaml parses into GlassboxConfig without error"
+    },
+    "m0.test_suite_passing": {
+      "target": true,
+      "result": true,
+      "note": "pytest exits zero with zero failures"
+    },
+    "m0.lint_clean": {
+      "target": true,
+      "result": true,
+      "note": "ruff check glassbox/ tests/ exits zero"
+    },
+    "m1.delisted_coverage_pct": {
+      "target": 0.05,
+      "result": 0.9082,
+      "note": "min pct of universe-months that include eventually-delisted names; stop-and-report gate per config.yaml validation.min_pct_universe_months_with_delisted"
+    },
+    "m1.candidate_pct_delisted": {
+      "target": 0.05,
+      "result": 0.4807,
+      "note": "pct of full Tiingo-covered US-stock candidate pool (active+delisted) that is delisted; sanity check before sampling/universe construction"
+    },
+    "m2.adversarial_tests_passing": {
+      "target": true,
+      "result": true,
+      "note": "AsOfAccessor adversarial test suite (future-data refusal, future-split refusal, monotonic clock, staleness-aware tradability) all pass"
+    },
+    "m2.corporate_action_handcheck_passing": {
+      "target": true,
+      "result": true,
+      "note": "2-for-1 split and cash dividend backward-adjustment reconstruction matches hand-calculated expected values"
+    },
+    "m3.backtest_core_tests_passing": {
+      "target": true,
+      "result": true,
+      "note": "hand-reconciled buy-and-hold/all-cash P&L, correct cost/turnover deduction, proof of no same-bar fill, correct rebalance position close-out"
+    },
+    "m4.factor_decile_monotonicity": {
+      "target": true,
+      "result": true,
+      "note": "momentum, reversal, low-vol each produce a monotonic decile spread on synthetic price paths"
+    },
+    "m4.fundamental_seam_refuses_non_pit": {
+      "target": true,
+      "result": true,
+      "note": "SizeFactor (FMP shares-outstanding), ValueFactor, QualityFactor all correctly refuse via the PIT-integrity check rather than computing on non-PIT data"
+    },
+    "m5.lookahead_audit_catches_injected_leak": {
+      "target": true,
+      "result": true,
+      "note": "deliberately injected leak (peeking N days ahead) produces a measurable, positive NAV/Sharpe improvement vs the honest as-of run"
+    },
+    "m5.deflated_and_haircut_sharpe_implemented": {
+      "target": true,
+      "result": true,
+      "note": "Deflated Sharpe Ratio (Bailey & Lopez de Prado) and a simplified Harvey-Liu-style Bonferroni haircut Sharpe both implemented and tested for correct monotonic degradation with more trials"
+    },
+    "m5.survivorship_and_cost_sensitivity_implemented": {
+      "target": true,
+      "result": true,
+      "note": "reusable survivorship-sensitivity and cost-sensitivity delta calculators (bps and Sharpe) tested against synthetic return series"
+    },
+    "m5.walk_forward_harness_implemented": {
+      "target": true,
+      "result": true,
+      "note": "strict chronological train/test split with independent, non-compounding in-sample/out-of-sample backtest windows"
+    },
+    "m1.survivorship_return_inflation_bps": {
+      "target": 0.0,
+      "result": 72.31,
+      "note": "annualized return inflation (bps) from using a survivors-only universe vs the full survivorship-aware universe; target is just >0 to confirm the bias is demonstrable in this sample"
+    },
+    "m1.gate_passed": {
+      "target": true,
+      "result": true,
+      "note": "M1 stop-and-report gate: delisted coverage pct >= config.validation.min_pct_universe_months_with_delisted (0.05)"
+    },
+    "m5.momentum.naive_sharpe": {
+      "target": 0.0,
+      "result": 0.3509,
+      "note": "momentum naive (net) Sharpe on real cached data, 47yr sample, ~95 tickers post liquidity/data-quality filter"
+    },
+    "m5.momentum.deflated_sharpe": {
+      "target": 0.0,
+      "result": 0.94,
+      "note": "momentum Deflated Sharpe Ratio (probability true Sharpe > 0, corrected for 3 factor trials)"
+    },
+    "m5.momentum.haircut_sharpe": {
+      "target": 0.0,
+      "result": 0.288,
+      "note": "momentum Bonferroni-style haircut Sharpe (simplified Harvey-Liu approximation)"
+    },
+    "m5.momentum.cost_drag_bps": {
+      "target": 0.0,
+      "result": 188.66,
+      "note": "momentum annualized return drag (bps) from gross to net of transaction costs"
+    },
+    "m5.momentum.survivorship_return_inflation_bps": {
+      "target": 0.0,
+      "result": 252.57,
+      "note": "momentum annualized return inflation (bps) from survivors-only vs full survivorship-aware universe"
+    },
+    "m5.momentum.in_sample_vs_out_of_sample_sharpe": {
+      "target": 0.0,
+      "result": "0.2546 vs 0.7142",
+      "note": "momentum walk-forward: in-sample Sharpe vs out-of-sample Sharpe (chronological 70/30 split)"
+    },
+    "m5.reversal.naive_sharpe": {
+      "target": 0.0,
+      "result": 0.3065,
+      "note": "reversal naive (net) Sharpe on real cached data, 47yr sample, ~95 tickers post liquidity/data-quality filter"
+    },
+    "m5.reversal.deflated_sharpe": {
+      "target": 0.0,
+      "result": 0.8945,
+      "note": "reversal Deflated Sharpe Ratio (probability true Sharpe > 0, corrected for 3 factor trials)"
+    },
+    "m5.reversal.haircut_sharpe": {
+      "target": 0.0,
+      "result": 0.2354,
+      "note": "reversal Bonferroni-style haircut Sharpe (simplified Harvey-Liu approximation)"
+    },
+    "m5.reversal.cost_drag_bps": {
+      "target": 0.0,
+      "result": 724.1,
+      "note": "reversal annualized return drag (bps) from gross to net of transaction costs"
+    },
+    "m5.reversal.survivorship_return_inflation_bps": {
+      "target": 0.0,
+      "result": 59.74,
+      "note": "reversal annualized return inflation (bps) from survivors-only vs full survivorship-aware universe"
+    },
+    "m5.reversal.in_sample_vs_out_of_sample_sharpe": {
+      "target": 0.0,
+      "result": "0.2938 vs 0.4097",
+      "note": "reversal walk-forward: in-sample Sharpe vs out-of-sample Sharpe (chronological 70/30 split)"
+    },
+    "m5.low_vol.naive_sharpe": {
+      "target": 0.0,
+      "result": 0.0373,
+      "note": "low_vol naive (net) Sharpe on real cached data, 47yr sample, ~95 tickers post liquidity/data-quality filter"
+    },
+    "m5.low_vol.deflated_sharpe": {
+      "target": 0.0,
+      "result": 0.2753,
+      "note": "low_vol Deflated Sharpe Ratio (probability true Sharpe > 0, corrected for 3 factor trials)"
+    },
+    "m5.low_vol.haircut_sharpe": {
+      "target": 0.0,
+      "result": 0.0,
+      "note": "low_vol Bonferroni-style haircut Sharpe (simplified Harvey-Liu approximation)"
+    },
+    "m5.low_vol.cost_drag_bps": {
+      "target": 0.0,
+      "result": 66.25,
+      "note": "low_vol annualized return drag (bps) from gross to net of transaction costs"
+    },
+    "m5.low_vol.survivorship_return_inflation_bps": {
+      "target": 0.0,
+      "result": 386.35,
+      "note": "low_vol annualized return inflation (bps) from survivors-only vs full survivorship-aware universe"
+    },
+    "m5.low_vol.in_sample_vs_out_of_sample_sharpe": {
+      "target": 0.0,
+      "result": "0.0495 vs 0.0074",
+      "note": "low_vol walk-forward: in-sample Sharpe vs out-of-sample Sharpe (chronological 70/30 split)"
+    },
+    "m6.dashboard_runs_locally": {
+      "target": true,
+      "result": true,
+      "note": "Streamlit dashboard verified end-to-end with Playwright: loads, runs backtest, shows naive/deflated/haircut Sharpe, equity curve, drawdown, rolling Sharpe, decile chart, turnover/costs, exports tearsheet HTML — all with zero console errors"
+    },
+    "m6.api_and_dashboard_identical": {
+      "target": true,
+      "result": true,
+      "note": "dashboard and CLI/tests both call glassbox.strategy.run_strategy() directly — single implementation, proven identical by test_strategy.py"
+    },
+    "m6.tearsheet_export_works": {
+      "target": true,
+      "result": true,
+      "note": "HTML tearsheet exported from dashboard button click verified to contain matching naive/deflated/haircut Sharpe numbers"
+    }
+  }
+}

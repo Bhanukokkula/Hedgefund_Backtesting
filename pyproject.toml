@@ -1,0 +1,52 @@
+[project]
+name = "glassbox"
+version = "0.1.0"
+description = "Glass-box cross-sectional factor backtester built to resist the ways backtests lie."
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.1",
+    "numpy>=1.26",
+    "scipy>=1.11",
+    "statsmodels>=0.14",
+    "pandas-market-calendars>=4.3",
+    "duckdb>=0.10",
+    "pyarrow>=14.0",
+    "streamlit>=1.30",
+    "matplotlib>=3.8",
+    "plotly>=5.18",
+    "pydantic>=2.5",
+    "pydantic-settings>=2.1",
+    "python-dotenv>=1.0",
+    "requests>=2.31",
+    "PyYAML>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "black>=24.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["glassbox"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

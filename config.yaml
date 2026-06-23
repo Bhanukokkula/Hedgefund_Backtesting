@@ -1,0 +1,45 @@
+# GLASSBOX configuration. Single source of truth for engine/data/cost parameters.
+# Secrets (API keys) live in .env, not here.
+
+seed: 42
+
+paths:
+  raw_dir: data/raw
+  parquet_dir: data/parquet
+  cache_dir: data/cache
+  results_file: results.json
+
+calendar:
+  name: NYSE
+
+universe:
+  start_date: "1996-01-01"
+  end_date: "2024-12-31"
+  top_n_by_dollar_volume: 500
+  rebalance_freq: "monthly"
+  min_price: 1.0          # penny-stock filter floor, applied as-of each rebalance
+  lookback_days_dollar_volume: 63
+
+publication_lag:
+  shares_outstanding_days: 1   # conservative knowability lag for shares-outstanding data
+  price_days: 0                 # prices are knowable same-day at close
+
+costs:
+  commission_bps: 1.0
+  half_spread_bps: 5.0
+  market_impact_coefficient: 0.1   # scales with participation rate
+  participation_rate_cap: 0.1
+
+factors:
+  momentum:
+    lookback_months: 12
+    skip_months: 1
+  reversal:
+    lookback_months: 1
+  low_vol:
+    lookback_days: 126
+  size:
+    field: market_cap
+
+validation:
+  min_pct_universe_months_with_delisted: 0.05   # M1 stop-and-report gate threshold
