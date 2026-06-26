@@ -74,12 +74,14 @@ confirmed, real survivorship bias, not a theoretical concern, and visible
 again at the individual-factor level above (low-vol, +285 bps).
 
 > **Honest caveats:**
-> - **Sample size.** 117 cached tickers (~95 passing filters), not the
->   500-name target in `config.yaml`. Bounded by Tiingo's free-tier hourly
->   request allocation (~50 req/hour), not by design. The qualitative
->   findings — survivorship inflates results, costs erode the weaker
->   factors, low-vol doesn't survive deflation — would plausibly hold at
->   full scale, but magnitudes should be read as directional.
+> - **Sample size.** 476 cached tickers (238 passing filters for M5), not
+>   the 500-name target in `config.yaml`. Bounded by a hard wall on
+>   Tiingo's free tier — 500 **unique symbol lookups per calendar month**,
+>   separate from and in addition to the ~50/hour rate limit — not by
+>   design. The qualitative findings — survivorship inflates results,
+>   costs erode the weaker factors, low-vol doesn't survive deflation —
+>   would plausibly hold at full scale, but magnitudes should be read as
+>   directional.
 > - **No margin/leverage model, by choice, not by accident.** An earlier
 >   dollar-neutral long-short construction (100% long / 100% short, 200%
 >   gross) was tried first and is mathematically able to lever past its
@@ -241,7 +243,7 @@ glassbox/
   validation/  the lie-resistance suite: M1 gate, metrics (Sharpe/DSR/haircut),
                survivorship & cost sensitivity, look-ahead audit, walk-forward
   reporting/   Streamlit dashboard, HTML tearsheet export
-tests/         83 tests: adversarial as-of tests, hand-checked corporate
+tests/         89 tests: adversarial as-of tests, hand-checked corporate
                actions, hand-reconciled backtest P&L, synthetic-fixture
                factor/metric tests, declarative-API equivalence tests
 results.json   every reported metric as a {target, result} pair
