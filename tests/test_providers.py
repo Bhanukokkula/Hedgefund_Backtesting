@@ -9,13 +9,14 @@ from datetime import date
 import pytest
 
 from glassbox.data.fmp import FMPProvider
-from glassbox.data.tiingo import TiingoProvider, TiingoRateLimitError
+from glassbox.data.tiingo import TiingoMonthlyQuotaError, TiingoProvider, TiingoRateLimitError
 
 
 class _FakeResponse:
     def __init__(self, status_code: int, payload):
         self.status_code = status_code
         self._payload = payload
+        self.text = "" if not isinstance(payload, str) else payload
 
     def json(self):
         return self._payload
@@ -89,6 +90,26 @@ def test_tiingo_404_returns_empty_dataframe():
     provider._session = _FakeSession(_FakeResponse(404, {"detail": "Not found"}))
     df = provider.get_price_history("ZZZ", date(2020, 1, 1), date(2020, 1, 5), adjusted=True)
     assert df.empty
+
+
+def test_tiingo_monthly_quota_message_raises_distinct_error_not_treated_as_bad_ticker():
+    """Regression test: Tiingo's monthly unique-symbol cap comes back as
+    HTTP 200 with a plain-text body, not a 4xx. An earlier version of
+    glassbox.data.ingest let this fall through to a generic JSONDecodeError
+    and permanently blacklisted the ticker as if it had no data — corrupting
+    the skip-list with perfectly good, simply-not-yet-looked-up tickers.
+    This must raise a distinct, identifiable error instead."""
+    provider = TiingoProvider(api_key="x")
+    quota_message = (
+        "You have run over your 500 symbol look up for this month. "
+        "Please upgrade at https://api.tiingo.com/pricing to have your limits increased."
+    )
+    fake_session = _FakeSession(_FakeResponse(200, quota_message))
+    provider._session = fake_session
+    with pytest.raises(TiingoMonthlyQuotaError):
+        provider.get_price_history("ZBRA", date(2020, 1, 1), date(2020, 1, 5), adjusted=True)
+    # Must not retry — same as the hourly rate limit, retrying can't help.
+    assert len(fake_session.calls) == 1
 
 
 def test_tiingo_429_raises_rate_limit_error_without_retrying():

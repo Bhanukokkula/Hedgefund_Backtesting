@@ -26,7 +26,7 @@ from datetime import date
 import numpy as np
 import pandas as pd
 
-from glassbox.data.candidates import load_candidate_universe
+from glassbox.data.candidates import is_preferred_share, load_candidate_universe
 from glassbox.data.universe import (
     build_survivorship_aware_universe,
     load_price_panel,
@@ -38,7 +38,11 @@ from glassbox.engine.costs import CostModel
 from glassbox.factors.ranking import long_only_top_decile_weights
 from glassbox.factors.scoring import low_vol_score, momentum_score, reversal_score
 from glassbox.settings import settings
-from glassbox.validation.m1_report import detect_bad_ticks, detect_coverage_gaps
+from glassbox.validation.m1_report import (
+    detect_bad_ticks,
+    detect_coverage_gaps,
+    detect_stale_pricing,
+)
 from glassbox.validation.metrics import (
     deflated_sharpe_ratio,
     harvey_liu_haircut_sharpe,
@@ -141,9 +145,22 @@ def run_all_factors() -> list[FactorResult]:
     # negative quadrillions: confirmed by an earlier run of this script
     # before this filter existed. Excluding them here is the same
     # data-quality gate M1 already proved necessary, applied consistently.
+    # Preferred shares (ticker convention "-P-X") are bond-like instruments,
+    # mechanically low-volatility without the equity risk premium — not
+    # genuinely "safe" common stock. Filtered here (not just at candidate
+    # -sampling time in glassbox.data.candidates) because this panel is
+    # built directly from whatever is already cached on disk, which may
+    # predate that exclusion. Confirmed via the real low-vol backtest: its
+    # long decile was dominated by preferred tickers before this existed.
+    # Stale/thinly-traded names (price barely moves day to day) are
+    # artificially low-volatility without being genuinely low-risk — the
+    # second contamination source found auditing the real low-vol result,
+    # alongside preferred shares.
+    preferred = {t for t in panel if is_preferred_share(t)}
     bad_ticks = set(detect_bad_ticks(panel))
     coverage_gaps = set(detect_coverage_gaps(panel))
-    excluded = bad_ticks | coverage_gaps
+    stale = set(detect_stale_pricing(panel))
+    excluded = bad_ticks | coverage_gaps | preferred | stale
     if excluded:
         logger.warning(
             "excluding %d flagged tickers from factor universe: %s", len(excluded), sorted(excluded)

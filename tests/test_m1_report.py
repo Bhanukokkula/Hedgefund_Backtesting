@@ -13,6 +13,7 @@ from glassbox.validation.m1_report import (
     _universe_daily_returns,
     detect_bad_ticks,
     detect_coverage_gaps,
+    detect_stale_pricing,
 )
 
 
@@ -44,6 +45,26 @@ def test_detect_bad_ticks_flags_implausible_moves():
     }
     flagged = detect_bad_ticks(panel, max_daily_move=0.95)
     assert "SPIKY" in flagged
+    assert "NORMAL" not in flagged
+
+
+def test_detect_stale_pricing_flags_mostly_flat_tickers():
+    """Regression test: a ticker whose price barely moves (thin/stale
+    trading) must be flagged even though it never produces an implausible
+    single-day move — this is a distinct contamination source from
+    detect_bad_ticks, found auditing the real low-vol factor result
+    (alongside preferred shares) where artificially flat names were
+    dominating the "safest" decile without being genuinely low-risk."""
+    dates = pd.date_range("2020-01-01", "2020-06-30", freq="B")
+    n = len(dates)
+    normal = [10.0 + 0.05 * (i % 7) for i in range(n)]
+    stale = [10.0] * (n // 2) + [10.0 + 0.1 * (i % 3) for i in range(n - n // 2)]
+    panel = {
+        "NORMAL": _df(dates, normal),
+        "STALE": _df(dates, stale),
+    }
+    flagged = detect_stale_pricing(panel, max_zero_return_fraction=0.25)
+    assert "STALE" in flagged
     assert "NORMAL" not in flagged
 
 

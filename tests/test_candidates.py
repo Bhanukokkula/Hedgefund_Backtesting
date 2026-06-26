@@ -22,6 +22,8 @@ FFF,NASDAQ,ETF,USD,2010-01-01,2026-06-22
 GGG,SHE,Stock,CNY,2010-01-01,2026-06-22
 HHH,NASDAQ,Stock,USD,2020-01-01,2020-02-01
 III,NYSE,Stock,USD,1998-01-01,2008-12-31
+BAC-P-W,NYSE,Stock,USD,2010-01-01,2026-06-22
+SF-P-C,NYSE,Stock,USD,2010-01-01,2010-12-31
 """
 
 
@@ -49,6 +51,33 @@ def test_non_us_and_non_stock_excluded(tmp_path):
     all_tickers = set(universe.active["ticker"]) | set(universe.delisted["ticker"])
     assert "FFF" not in all_tickers  # ETF, not Stock
     assert "GGG" not in all_tickers  # non-US exchange / non-USD
+
+
+def test_load_candidate_universe_handles_missing_ticker_values(tmp_path):
+    """Regression test: a blank ticker field (real rows in Tiingo's CSV)
+    must not crash the preferred-share filter — is_preferred_share() can
+    only run on string values, so the NaN-ticker rows must be dropped
+    first. An earlier version of this function applied the filter before
+    dropna(subset=["ticker"]) and crashed with TypeError on the first real
+    NaN ticker it hit."""
+    csv_with_blank_ticker = SYNTHETIC_CSV + ",NASDAQ,Stock,USD,2010-01-01,2026-06-22\n"
+    path = tmp_path / "tickers.csv"
+    path.write_text(csv_with_blank_ticker)
+    universe = load_candidate_universe(path, date(2026, 6, 22))
+    assert "AAA" in set(universe.active["ticker"])
+
+
+def test_preferred_shares_excluded(tmp_path):
+    """Regression test: preferred shares (ticker convention "-P-X") are
+    bond-like instruments without the equity risk premium, mechanically
+    low-volatility by construction — not genuinely "safe" common stock.
+    Confirmed via the real low-vol factor backtest: its long decile was
+    dominated by preferred tickers before this filter existed."""
+    path = _write_csv(tmp_path)
+    universe = load_candidate_universe(path, date(2026, 6, 22))
+    all_tickers = set(universe.active["ticker"]) | set(universe.delisted["ticker"])
+    assert "BAC-P-W" not in all_tickers
+    assert "SF-P-C" not in all_tickers
 
 
 def test_no_hindsight_in_classification(tmp_path):

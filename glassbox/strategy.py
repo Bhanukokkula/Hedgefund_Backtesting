@@ -19,14 +19,18 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
-from glassbox.data.candidates import load_candidate_universe
+from glassbox.data.candidates import is_preferred_share, load_candidate_universe
 from glassbox.data.universe import build_survivorship_aware_universe, monthly_rebalance_dates
 from glassbox.engine.asof_accessor import ConcreteAsOfAccessor
 from glassbox.engine.backtest import BacktestEngine
 from glassbox.engine.costs import CostModel
 from glassbox.factors.ranking import decile_long_short_weights, long_only_top_decile_weights
 from glassbox.factors.scoring import low_vol_score, momentum_score, reversal_score
-from glassbox.validation.m1_report import detect_bad_ticks, detect_coverage_gaps
+from glassbox.validation.m1_report import (
+    detect_bad_ticks,
+    detect_coverage_gaps,
+    detect_stale_pricing,
+)
 from glassbox.validation.metrics import sharpe_ratio
 from glassbox.validation.sensitivity import survivorship_sensitivity
 
@@ -137,7 +141,9 @@ def run_strategy(
     if spec.apply_data_quality_filter:
         bad_ticks = set(detect_bad_ticks(panel))
         coverage_gaps = set(detect_coverage_gaps(panel))
-        excluded = sorted(bad_ticks | coverage_gaps)
+        preferred = {t for t in panel if is_preferred_share(t)}
+        stale = set(detect_stale_pricing(panel))
+        excluded = sorted(bad_ticks | coverage_gaps | preferred | stale)
         panel = {t: df for t, df in panel.items() if t not in excluded}
 
     all_dates = sorted({ts for df in panel.values() for ts in df.index})

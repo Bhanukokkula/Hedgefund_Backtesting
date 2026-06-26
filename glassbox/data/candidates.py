@@ -28,6 +28,16 @@ US_EXCHANGES = {"NASDAQ", "NYSE", "AMEX", "NYSE ARCA", "BATS"}
 RECENCY_WINDOW_DAYS = 7
 
 
+def is_preferred_share(ticker: str) -> bool:
+    """True for Tiingo's preferred-share ticker convention ("-P-X", e.g.
+    "BAC-P-W"). Preferred shares are bond-like instruments — mechanically
+    low-volatility by construction and without the equity risk premium —
+    not genuinely "safe" common stock. Used both when building the
+    candidate universe (`load_candidate_universe`) and when filtering an
+    already-cached price panel that may predate this exclusion."""
+    return "-P-" in ticker
+
+
 @dataclass(frozen=True)
 class CandidateUniverse:
     active: pd.DataFrame  # columns: ticker, exchange, start_date, end_date
@@ -43,6 +53,15 @@ def load_candidate_universe(
     df = df[(df["assetType"] == "Stock") & (df["priceCurrency"] == "USD")]
     df = df[df["exchange"].isin(US_EXCHANGES)]
     df = df.dropna(subset=["ticker"])
+    # Tiingo's assetType=="Stock" does not distinguish common equity from
+    # preferred shares (ticker convention "-P-X", e.g. "BAC-P-W"). Preferred
+    # shares are bond-like instruments — mechanically low-volatility by
+    # construction and without the equity risk premium, not "safe" common
+    # stock — and this project's locked scope is common-equity factors.
+    # Confirmed via the real low-vol factor result: its long decile was
+    # dominated by preferred tickers and stale-priced illiquid names
+    # (up to 65% zero-return days), not genuinely low-risk common stocks.
+    df = df[~df["ticker"].apply(is_preferred_share)]
     df["start_date"] = pd.to_datetime(df["startDate"], errors="coerce")
     df["end_date"] = pd.to_datetime(df["endDate"], errors="coerce")
     df = df.dropna(subset=["start_date", "end_date"])

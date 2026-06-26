@@ -1,0 +1,53 @@
+[
+  {
+    "factor": "momentum",
+    "n_tickers": 238,
+    "n_rebalances": 648,
+    "gross_sharpe": 0.4131093123800954,
+    "net_sharpe": 0.35343877622698383,
+    "cost_drag_bps": 218.89836156593515,
+    "full_universe_sharpe": 0.35343877622698383,
+    "survivors_only_sharpe": 0.345470806468744,
+    "survivorship_sharpe_inflation": -0.007967969758239823,
+    "survivorship_return_inflation_bps": -26.136658296689347,
+    "in_sample_sharpe": 0.3221659017509653,
+    "out_of_sample_sharpe": 0.4840749182340986,
+    "naive_sharpe": 0.35343877622698383,
+    "deflated_sharpe": 0.959585125559207,
+    "haircut_sharpe": 0.29870713293360895
+  },
+  {
+    "factor": "reversal",
+    "n_tickers": 238,
+    "n_rebalances": 649,
+    "gross_sharpe": 0.43255434414865646,
+    "net_sharpe": 0.223484412817363,
+    "cost_drag_bps": 747.7822831785711,
+    "full_universe_sharpe": 0.223484412817363,
+    "survivors_only_sharpe": 0.27162352127544365,
+    "survivorship_sharpe_inflation": 0.04813910845808064,
+    "survivorship_return_inflation_bps": 146.39049110923588,
+    "in_sample_sharpe": 0.30138887767672357,
+    "out_of_sample_sharpe": 0.07574463604646822,
+    "naive_sharpe": 0.223484412817363,
+    "deflated_sharpe": 0.7853529029392022,
+    "haircut_sharpe": 0.1406654175112669
+  },
+  {
+    "factor": "low_vol",
+    "n_tickers": 238,
+    "n_rebalances": 649,
+    "gross_sharpe": 0.038158083679589366,
+    "net_sharpe": 0.007095553703540847,
+    "cost_drag_bps": 64.27180992473764,
+    "full_universe_sharpe": 0.007095553703540847,
+    "survivors_only_sharpe": 0.15644650550473604,
+    "survivorship_sharpe_inflation": 0.1493509518011952,
+    "survivorship_return_inflation_bps": 285.10699796345483,
+    "in_sample_sharpe": -0.0015437205920305344,
+    "out_of_sample_sharpe": 0.025741024098709604,
+    "naive_sharpe": 0.007095553703540847,
+    "deflated_sharpe": 0.21168075382155316,
+    "haircut_sharpe": 0.0
+  }
+]

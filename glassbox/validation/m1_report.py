@@ -72,6 +72,29 @@ def detect_bad_ticks(panel: dict[str, pd.DataFrame], max_daily_move: float = 0.9
     return flagged
 
 
+def detect_stale_pricing(
+    panel: dict[str, pd.DataFrame], max_zero_return_fraction: float = 0.25
+) -> list[str]:
+    """Flag tickers whose price barely moves day to day — a sign of thin or
+    stale trading, not genuine stability. A name with this many days of
+    exactly-zero return is artificially low-volatility, which a naive
+    low-vol factor would systematically over-select; this is the second
+    real contamination source found auditing that factor's real-data
+    result, after preferred shares (see glassbox.data.candidates).
+    """
+    flagged = []
+    for ticker, df in panel.items():
+        if len(df) < 2:
+            continue
+        returns = df["adj_close"].pct_change().dropna()
+        if returns.empty:
+            continue
+        zero_fraction = (returns == 0).mean()
+        if zero_fraction > max_zero_return_fraction:
+            flagged.append(ticker)
+    return flagged
+
+
 def _annualized_return(daily_mean: float) -> float:
     return daily_mean * 252 * 10_000  # bps
 

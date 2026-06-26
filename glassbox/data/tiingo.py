@@ -35,6 +35,20 @@ class TiingoRateLimitError(RuntimeError):
         super().__init__(f"Tiingo hourly request allocation exhausted: {url}")
 
 
+class TiingoMonthlyQuotaError(RuntimeError):
+    """Tiingo's free tier caps unique-symbol lookups at 500/month — a hard
+    wall distinct from the hourly request-rate limit. It comes back as
+    HTTP 200 with a plain-text body ("You have run over your 500 symbol
+    look up for this month..."), not a 4xx status, so it must be detected
+    by content, not status code. Critically: this is NOT evidence the
+    ticker itself lacks data — conflating the two (as an earlier version of
+    glassbox.data.ingest did) corrupts the known-bad skip-list with
+    perfectly good tickers that simply got caught after the cap was hit."""
+
+    def __init__(self, url: str):
+        super().__init__(f"Tiingo monthly unique-symbol lookup quota exhausted: {url}")
+
+
 class TiingoProvider:
     def __init__(self, api_key: str, max_retries: int = 3, retry_backoff_seconds: float = 2.0):
         if not api_key:
@@ -143,6 +157,8 @@ class TiingoProvider:
             try:
                 resp = self._session.get(url, params=params, timeout=30)
                 if resp.status_code == 200:
+                    if "symbol look up for this month" in resp.text:
+                        raise TiingoMonthlyQuotaError(url)
                     return resp.json()
                 if resp.status_code == 404:
                     logger.warning("Tiingo 404 for %s (ticker likely delisted/unsupported)", url)
